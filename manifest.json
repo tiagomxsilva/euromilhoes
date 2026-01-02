@@ -1,7 +1,7 @@
 {
   "name": "Euromilhões",
   "short_name": "Euromilhões",
-  "start_url": "/euromilhoes/euromilhoes_v03.html",
+  "start_url": "/euromilhoes/",
   "scope": "/euromilhoes/",
   "display": "standalone",
   "background_color": "#3949ab",
