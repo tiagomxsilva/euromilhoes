@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Euromilhões App</title>
+
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#3949ab">
+
+<style>
+:root {
+    --primary: #3949ab;
+    --success: #2e7d32;
+    --bg: #f2f3f7;
+    --card: #ffffff;
+}
+
+body {
+    margin: 0;
+    font-family: system-ui, sans-serif;
+    background: var(--bg);
+}
+
+.header {
+    background: var(--primary);
+    color: white;
+    text-align: center;
+    padding: 16px;
+    font-size: 1.4em;
+    font-weight: bold;
+    border-radius: 0 0 20px 20px;
+}
+
+.app {
+    max-width: 520px;
+    margin: auto;
+    padding: 16px;
+}
+
+.card {
+    background: var(--card);
+    padding: 16px;
+    margin-top: 16px;
+    border-radius: 16px;
+    box-shadow: 0 8px 20px rgba(0,0,0,.08);
+}
+
+.card h3 {
+    margin-top: 0;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(5, 48px);
+    gap: 8px;
+    justify-content: center;
+}
+
+.grid-stars {
+    display: grid;
+    grid-template-columns: repeat(2, 48px);
+    gap: 8px;
+    justify-content: center;
+    margin-top: 8px;
+}
+
+input[type="number"] {
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    text-align: center;
+    font-size: 1em;
+    border-radius: 12px;
+    border: 1px solid #ccc;
+}
+
+.chave {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px dashed #ccc;
+}
+
+button {
+    width: 100%;
+    padding: 14px;
+    margin-top: 16px;
+    border-radius: 16px;
+    border: none;
+    background: var(--primary);
+    color: white;
+    font-size: 1em;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.result {
+    margin-top: 12px;
+    padding: 12px;
+    border-radius: 14px;
+    background: #f9f9f9;
+    border-left: 6px solid #ccc;
+}
+
+.result.win {
+    border-left-color: var(--success);
+    background: #e8f5e9;
+}
+
+.error {
+    color: red;
+    margin-top: 10px;
+    font-weight: bold;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">🎯 Euromilhões</div>
+
+<div class="app">
+
+<div class="card">
+    <h3>Chave Sorteada</h3>
+    <div class="grid">
+        <input type="number" id="s_n1" min="1" max="50">
+        <input type="number" id="s_n2" min="1" max="50">
+        <input type="number" id="s_n3" min="1" max="50">
+        <input type="number" id="s_n4" min="1" max="50">
+        <input type="number" id="s_n5" min="1" max="50">
+    </div>
+    <div class="grid-stars">
+        <input type="number" id="s_e1" min="1" max="12">
+        <input type="number" id="s_e2" min="1" max="12">
+    </div>
+</div>
+
+<div class="card">
+    <h3>Chaves de Jogo</h3>
+
+    <!-- 5 chaves -->
+    <div id="chaves">
+        <!-- geradas manualmente -->
+    </div>
+</div>
+
+<div class="card">
+    <button onclick="verificar()">Verificar Chaves</button>
+    <div id="resultados"></div>
+</div>
+
+</div>
+
+<script>
+function criarChaves() {
+    const cont = document.getElementById("chaves");
+    for (let i = 1; i <= 5; i++) {
+        cont.innerHTML += `
+        <div class="chave">
+            <strong>Chave ${i}</strong>
+            <div class="grid">
+                <input type="number" id="c${i}_n1">
+                <input type="number" id="c${i}_n2">
+                <input type="number" id="c${i}_n3">
+                <input type="number" id="c${i}_n4">
+                <input type="number" id="c${i}_n5">
+            </div>
+            <div class="grid-stars">
+                <input type="number" id="c${i}_e1">
+                <input type="number" id="c${i}_e2">
+            </div>
+        </div>`;
+    }
+}
+
+function lerChave(prefixo) {
+    let n = [], e = [];
+
+    for (let i = 1; i <= 5; i++) {
+        let v = parseInt(document.getElementById(`${prefixo}_n${i}`).value);
+        if (isNaN(v)) return null;
+        n.push(v);
+    }
+
+    for (let i = 1; i <= 2; i++) {
+        let v = parseInt(document.getElementById(`${prefixo}_e${i}`).value);
+        if (isNaN(v)) return null;
+        e.push(v);
+    }
+
+    if (temRepetidos(n)) {
+        alert("❌ Existem números repetidos na chave.");
+        return null;
+    }
+
+    if (temRepetidos(e)) {
+        alert("❌ Existem estrelas repetidas na chave.");
+        return null;
+    }
+
+    return { n, e };
+}
+
+function categoria(n, e) {
+    const map = {
+        "5-2":"🥇 1ª Categoria",
+        "5-1":"🥈 2ª Categoria",
+        "5-0":"🥉 3ª Categoria",
+        "4-2":"4ª Categoria",
+        "4-1":"5ª Categoria",
+        "3-2":"6ª Categoria",
+        "4-0":"7ª Categoria",
+        "2-2":"8ª Categoria",
+        "3-1":"9ª Categoria",
+        "3-0":"10ª Categoria",
+        "1-2":"11ª Categoria",
+        "2-1":"12ª Categoria",
+        "2-0":"13ª Categoria"
+    };
+    return map[`${n}-${e}`] || null;
+}
+
+function temRepetidos(arr) {
+    return new Set(arr).size !== arr.length;
+}
+
+function verificar() {
+    const sorteio = lerChave("s");
+    const res = document.getElementById("resultados");
+    res.innerHTML = "";
+
+    if (!sorteio) {
+        res.innerHTML = "<div class='error'>Preenche a chave sorteada</div>";
+        return;
+    }
+
+    for (let i = 1; i <= 5; i++) {
+        const c = lerChave(`c${i}`);
+        if (!c) continue;
+
+        const nc = c.n.filter(x => sorteio.n.includes(x)).length;
+        const ec = c.e.filter(x => sorteio.e.includes(x)).length;
+        const cat = categoria(nc, ec);
+
+        res.innerHTML += `
+        <div class="result ${cat ? 'win' : ''}">
+            <strong>Chave ${i}</strong><br>
+            🎯 ${nc} números · ⭐ ${ec} estrelas<br>
+            🏆 ${cat ?? "Sem prémio"}
+        </div>`;
+    }
+}
+
+if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("sw.js");
+}
+
+criarChaves();
+</script>
+
+</body>
+</html>
