@@ -1,8 +1,8 @@
-const CACHE_NAME = "euromilhoes-v2";
+const CACHE_NAME = "euromilhoes-v4";
 const FILES_TO_CACHE = [
-  "./",
-  "./euromilhoes_v03.html",
-  "./manifest.json"
+  "/euromilhoes/",
+  "/euromilhoes/euromilhoes_v03.html",
+  "/euromilhoes/manifest.json"
 ];
 
 self.addEventListener("install", event => {
@@ -18,8 +18,6 @@ self.addEventListener("activate", event => {
 
 self.addEventListener("fetch", event => {
   event.respondWith(
-    caches.match(event.request).then(response => {
-      return response || fetch(event.request);
-    })
+    caches.match(event.request).then(response => response || fetch(event.request))
   );
 });
