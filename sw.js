@@ -1,12 +1,14 @@
-const CACHE = "euromilhoes-final-v1";
+const CACHE = "euromilhoes-final-v7";
 
 self.addEventListener("install", e => {
   e.waitUntil(
     caches.open(CACHE).then(c =>
       c.addAll([
-        "/euromilhoes/",
-        "/euromilhoes/index.html",
-        "/euromilhoes/manifest.json"
+        "./",
+        "./index.html",
+        "./manifest.json",
+        "./icon-192.png",
+        "./icon-512.png"
       ])
     )
   );
@@ -22,4 +24,5 @@ self.addEventListener("fetch", e => {
     caches.match(e.request).then(r => r || fetch(e.request))
   );
 });
+
 
